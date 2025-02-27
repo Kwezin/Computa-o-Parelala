@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <stdlib.h>
+
+int main() {
+    int n;
+    printf("Digite o número de processos filhos: ");
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        pid_t pid = fork();
+
+        if (pid == 0) {  
+            srand(getpid());  
+            int sleep_time = rand() % 10 + 1;
+            sleep(sleep_time);
+            printf("Filho [%d] finalizando com código %d\n", getpid(), sleep_time);
+            exit(sleep_time);  // Retorna o tempo de espera como código de saída
+        }
+    }
+
+    // Código do processo pai: espera todos os filhos terminarem
+    int status;
+    pid_t pid_filho;
+    while ((pid_filho = wait(&status)) > 0) {  
+        if (WIFEXITED(status)) {  
+            printf("Filho [%d] terminou com código de saída %d\n", pid_filho, WEXITSTATUS(status));
+        } else {
+            printf("Filho [%d] não terminou normalmente\n", pid_filho);
+        }
+    }
+
+    return 0;
+}

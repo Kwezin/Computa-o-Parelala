@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <stdlib.h>  
+
+int main() {
+    int n;
+    int status;
+    
+    printf("Digite o número de processos: ");
+    scanf("%d", &n);
+
+    pid_t pids[n];
+
+    for (int i = 0; i < n; i++) {
+        pid_t pid = fork();
+
+        if (pid == 0) {  // Processo filho
+            srand(time(NULL) + getpid());
+            int sleep_time = rand() % 10 + 1;
+            sleep(sleep_time);
+            exit(sleep_time);
+        } else(pid > 0) {
+            pids[i] = pid;  
+       
+    }
+
+    
+    for (int i = 0; i < n; i++) {
+        pid_t pid_filho = waitpid(pids[i], &status, 0);
+        if (WIFEXITED(status)) {
+            printf("Filho %d finalizou com status %d\n", pid_filho, WEXITSTATUS(status));
+        } else {
+            printf("Filho %d finalizou de forma anormal\n", pid_filho);
+        }
+    }
+
+    return 0;
+}
